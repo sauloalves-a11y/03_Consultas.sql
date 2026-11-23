@@ -1,0 +1,351 @@
+-- ============================================
+-- ATENA TECH - PROJETO SG-UNI
+-- Banco de Dados: SgUniDB
+-- Integrantes:
+-- Andrey Rodrigues Campos - RA 2221100108
+-- Vitor Alves da Silva - RA 2225103471
+-- Saulo Alves Costa Souza - RA 2225202615
+-- Pedro Hugo Carvalho Rosa - RA 2225200774
+-- Elnatan Cainan de Jesus - RA 2225203024
+-- ============================================
+
+-- 1. EXCLUIR BANCO ANTERIOR, CASO EXISTA
+DROP DATABASE IF EXISTS SgUniDB;
+
+-- 2. CRIAR BANCO DE DADOS
+CREATE DATABASE SgUniDB;
+
+-- 3. SELECIONAR BANCO DE DADOS
+USE SgUniDB;
+
+-- ============================================
+-- 4. TABELA DE CURSOS
+-- ============================================
+
+CREATE TABLE Curso (
+    id_curso INT AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    modalidade VARCHAR(30) NOT NULL
+);
+
+-- ============================================
+-- 5. TABELA DE ALUNOS
+-- ============================================
+
+CREATE TABLE Aluno (
+    id_aluno INT AUTO_INCREMENT PRIMARY KEY,
+    id_curso INT NOT NULL,
+    nome VARCHAR(120) NOT NULL,
+    cpf CHAR(11) NOT NULL UNIQUE,
+    email VARCHAR(120) NOT NULL UNIQUE,
+    telefone VARCHAR(20),
+
+    CONSTRAINT FK_Aluno_Curso
+        FOREIGN KEY (id_curso)
+        REFERENCES Curso(id_curso)
+);
+
+-- ============================================
+-- 6. TABELA DE PROFESSORES
+-- ============================================
+
+CREATE TABLE Professor (
+    id_professor INT AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(120) NOT NULL,
+    cpf CHAR(11) NOT NULL UNIQUE,
+    email VARCHAR(120) NOT NULL UNIQUE
+);
+
+-- ============================================
+-- 7. TABELA DE DISCIPLINAS
+-- ============================================
+
+CREATE TABLE Disciplina (
+    id_disciplina INT AUTO_INCREMENT PRIMARY KEY,
+    id_curso INT NOT NULL,
+    nome VARCHAR(100) NOT NULL,
+    carga_horaria INT NOT NULL,
+
+    CONSTRAINT FK_Disciplina_Curso
+        FOREIGN KEY (id_curso)
+        REFERENCES Curso(id_curso),
+
+    CONSTRAINT CK_Disciplina_Carga
+        CHECK (carga_horaria > 0)
+);
+
+-- ============================================
+-- 8. TABELA DE TURMAS
+-- ============================================
+
+CREATE TABLE Turma (
+    id_turma INT AUTO_INCREMENT PRIMARY KEY,
+    id_disciplina INT NOT NULL,
+    id_professor INT NOT NULL,
+    identificacao VARCHAR(30) NOT NULL,
+    periodo VARCHAR(30) NOT NULL,
+
+    CONSTRAINT FK_Turma_Disciplina
+        FOREIGN KEY (id_disciplina)
+        REFERENCES Disciplina(id_disciplina),
+
+    CONSTRAINT FK_Turma_Professor
+        FOREIGN KEY (id_professor)
+        REFERENCES Professor(id_professor)
+);
+
+-- ============================================
+-- 9. TABELA DE MATRÍCULAS
+-- ============================================
+
+CREATE TABLE Matricula (
+    id_matricula INT AUTO_INCREMENT PRIMARY KEY,
+    id_aluno INT NOT NULL,
+    id_turma INT NOT NULL,
+    data_matricula DATE NOT NULL,
+    status VARCHAR(20) NOT NULL,
+
+    CONSTRAINT FK_Matricula_Aluno
+        FOREIGN KEY (id_aluno)
+        REFERENCES Aluno(id_aluno),
+
+    CONSTRAINT FK_Matricula_Turma
+        FOREIGN KEY (id_turma)
+        REFERENCES Turma(id_turma),
+
+    CONSTRAINT UQ_Aluno_Turma
+        UNIQUE (id_aluno, id_turma),
+
+    CONSTRAINT CK_Matricula_Status
+        CHECK (status IN ('Ativa', 'Cancelada'))
+);
+
+-- ============================================
+-- 10. VERIFICAR TABELAS CRIADAS
+-- ============================================
+
+SHOW TABLES;
+
+-- ============================================
+-- 11. VERIFICAR ESTRUTURA DAS TABELAS
+-- ============================================
+
+DESCRIBE Curso;
+DESCRIBE Aluno;
+DESCRIBE Professor;
+DESCRIBE Disciplina;
+DESCRIBE Turma;
+DESCRIBE Matricula;
+
+-- ============================================
+-- FIM DO SCRIPT SG-UNI
+-- ============================================
+
+
+
+
+
+
+
+
+
+
+
+
+
+-- ============================================
+-- ATENA TECH - PROJETO SG-UNI
+-- CADASTRO DE DADOS
+-- ============================================
+
+USE SgUniDB;
+
+-- ============================================
+-- 1. CADASTRO DE CURSOS
+-- ============================================
+
+INSERT INTO Curso (nome, modalidade)
+VALUES
+('Gestão da Tecnologia da Informação', 'Presencial'),
+('Análise e Desenvolvimento de Sistemas', 'Presencial');
+
+
+-- ============================================
+-- 2. CADASTRO DE ALUNOS
+-- ============================================
+
+INSERT INTO Aluno (id_curso, nome, cpf, email, telefone)
+VALUES
+(1, 'Andrey Campos', '2221100108', 'andrey.campos@uni9.edu.br', '11946266312'),
+(1, 'Pedro Hugo', '2225200774', 'p.hugo@uni9.edu.br', '11988882222'),
+(2, 'Victor Alves', '2225103471', 'victoo.alves@uni9.edu.br', '11988883333');
+
+
+-- ============================================
+-- 3. CADASTRO DE PROFESSORES
+-- ============================================
+
+INSERT INTO Professor (nome, cpf, email)
+VALUES
+('Priscila Cunha', '2221504951', 'priscila.cunha@email.com'),
+('Fernanda Costa', '2221100514', 'fernanda@email.com');
+
+
+-- ============================================
+-- 4. CADASTRO DE DISCIPLINAS
+-- ============================================
+
+INSERT INTO Disciplina (id_curso, nome, carga_horaria)
+VALUES
+(1, 'Banco de Dados', 80),
+(1, 'Engenharia de Software', 80),
+(2, 'Programação Orientada a Objetos', 100);
+
+
+-- ============================================
+-- 5. CADASTRO DE TURMAS
+-- ============================================
+
+INSERT INTO Turma (id_disciplina, id_professor, identificacao, periodo)
+VALUES
+(1, 1, 'BD-2A', 'Noturno'),
+(2, 2, 'ES-2A', 'Noturno'),
+(3, 1, 'POO-1A', 'Matutino');
+
+
+-- ============================================
+-- 6. CADASTRO DE MATRÍCULAS
+-- ============================================
+
+INSERT INTO Matricula
+(id_aluno, id_turma, data_matricula, status)
+VALUES
+(1, 1, '2026-08-15', 'Ativa'),
+(1, 2, '2026-08-16', 'Ativa'),
+(2, 1, '2026-08-17', 'Ativa'),
+(3, 3, '2026-08-18', 'Ativa');
+
+
+-- ============================================
+-- 7. CONFERIR OS DADOS CADASTRADOS
+-- ============================================
+
+SELECT * FROM Curso;
+SELECT * FROM Aluno;
+SELECT * FROM Professor;
+SELECT * FROM Disciplina;
+SELECT * FROM Turma;
+SELECT * FROM Matricula;
+
+-- ============================================
+-- FIM DOS CADASTROS
+-- ============================================
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+SELECT
+    Aluno.id_aluno,
+    Aluno.nome AS aluno,
+    Aluno.email,
+    Curso.nome AS curso
+FROM Aluno
+INNER JOIN Curso
+    ON Aluno.id_curso = Curso.id_curso;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+SELECT
+    Turma.identificacao AS turma,
+    Turma.periodo,
+    Disciplina.nome AS disciplina,
+    Professor.nome AS professor
+FROM Turma
+INNER JOIN Disciplina
+    ON Turma.id_disciplina = Disciplina.id_disciplina
+INNER JOIN Professor
+    ON Turma.id_professor = Professor.id_professor;
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+SELECT
+    Matricula.id_matricula,
+    Aluno.nome AS aluno,
+    Curso.nome AS curso,
+    Turma.identificacao AS turma,
+    Disciplina.nome AS disciplina,
+    Matricula.data_matricula,
+    Matricula.status
+FROM Matricula
+INNER JOIN Aluno
+    ON Matricula.id_aluno = Aluno.id_aluno
+INNER JOIN Curso
+    ON Aluno.id_curso = Curso.id_curso
+INNER JOIN Turma
+    ON Matricula.id_turma = Turma.id_turma
+INNER JOIN Disciplina
+    ON Turma.id_disciplina = Disciplina.id_disciplina
+ORDER BY Aluno.nome;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+SELECT
+    Turma.identificacao AS turma,
+    Disciplina.nome AS disciplina,
+    COUNT(Matricula.id_matricula) AS total_matriculas
+FROM Turma
+INNER JOIN Disciplina
+    ON Turma.id_disciplina = Disciplina.id_disciplina
+LEFT JOIN Matricula
+    ON Turma.id_turma = Matricula.id_turma
+GROUP BY
+    Turma.identificacao,
+    Disciplina.nome;
